@@ -3,107 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>셔터 카운트 확인기 — Sony · Nikon · Canon · Fuji · Pentax</title>
+<title>셔터 카운트 감정서 — Sony · Nikon · Canon · Fuji · Pentax</title>
 <meta name="description" content="무료 카메라 셔터 카운트 확인 도구. Sony, Nikon, Canon, Fujifilm, Pentax 지원. 파일은 서버로 업로드되지 않으며 모든 처리가 브라우저 안에서 이루어집니다.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<header class="site-header">
-  <div class="wrap">
-    <h1>📷 셔터 카운트 확인기</h1>
-    <nav>
-      <button class="navbtn active" data-tab="main">확인하기</button>
-      <button class="navbtn" data-tab="supported">지원 카메라</button>
-      <button class="navbtn" data-tab="faq">FAQ</button>
-    </nav>
+<header class="masthead">
+  <div class="meta-line">
+    <span>BROWSER-ONLY · NO UPLOAD</span><span>SONY · NIKON · CANON · FUJIFILM · PENTAX</span>
   </div>
+  <h1>셔터 카운트 감정서</h1>
+  <div class="subtitle">원본 사진 한 장으로 읽는 카메라의 사용 이력</div>
+  <div class="double-rule"></div>
+  <nav>
+    <button class="navbtn active" data-tab="main">확인하기</button>
+    <button class="navbtn" data-tab="supported">지원 카메라</button>
+    <button class="navbtn" data-tab="faq">FAQ</button>
+  </nav>
 </header>
 
-<main class="wrap">
-  <!-- 메인 탭 -->
+<main>
+  <!-- 확인하기 탭 -->
   <section id="tab-main" class="tab active">
-    <p class="lead">
-      카메라에서 나온 <b>원본 JPG 또는 RAW 파일</b>(ARW · NEF · PEF · RAF · CR2 · CR3 · DNG)을 올리면
-      촬영 시점의 셔터 작동 횟수를 보여줍니다.
-    </p>
+    <p class="lead">카메라에서 나온 <b>원본 JPG 또는 RAW 파일</b>(ARW · NEF · PEF · RAF · CR2 · CR3 · DNG)을 올리면 촬영 시점의 셔터 작동 횟수를 보여줍니다.</p>
 
     <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="이미지 파일 선택">
       <div class="dz-inner">
-        <div class="dz-icon">🖼️</div>
-        <div class="dz-title">여기에 파일을 끌어다 놓거나 클릭해서 선택</div>
+        <div class="dz-code" id="dzCode">ORIGINAL FILES ONLY</div>
+        <div class="dz-title">원본 파일을 이곳에 놓거나, 눌러서 선택하세요</div>
         <div class="dz-sub">여러 파일 동시 가능 · 편집/리사이즈된 파일은 정확하지 않을 수 있음</div>
       </div>
     </div>
+    <div class="privacy-line">※ 파일은 어디에도 업로드되지 않습니다. 모든 분석은 브라우저 안에서만 이루어지며, 파일 앞부분 몇 MB만 읽습니다.</div>
 
-    <div id="results"></div>
+    <section id="resultsSection" class="results-section">
+      <div class="section-head">
+        <h2>감정 결과</h2>
+        <div class="rule"></div>
+        <span id="resultsCount" class="mono-count">총 0건</span>
+      </div>
+      <div id="results"></div>
+    </section>
 
-    <div class="privacy-note">
-      🔒 <b>파일은 어디에도 업로드되지 않습니다.</b> 모든 분석은 사용자의 브라우저 안에서만 이루어지며,
-      파일 앞부분 몇 MB만 읽기 때문에 대용량 RAW도 즉시 처리됩니다.
-    </div>
-
-    <div class="brand-summary">
-      <h2>브랜드별 지원 현황</h2>
-      <table>
-        <thead><tr><th>브랜드</th><th>지원</th><th>비고</th></tr></thead>
-        <tbody>
-          <tr><td>Sony</td><td class="ok">지원</td><td>α 시리즈 (기계식 셔터 카운트). A9 III는 글로벌 셔터(기계식 셔터 없음)라 해당 없음</td></tr>
-          <tr><td>Nikon</td><td class="ok">지원</td><td>D40 이후 DSLR 전 기종 + Z 시리즈 전 기종 (JPG/NEF)</td></tr>
-          <tr><td>Pentax</td><td class="ok">지원</td><td>*istD 이후 대부분의 DSLR (JPG/PEF/DNG)</td></tr>
-          <tr><td>Fujifilm</td><td class="ok">지원</td><td>2017년 이후 X/GFX 기종 (ImageCount, 최대 32767에서 순환)</td></tr>
-          <tr><td>Canon</td><td class="part">일부 지원</td><td>R5 · R6 · R6 II · R8 · R50 · R5 II 등 일부 미러리스만. 대부분의 캐논은 EXIF에 기록 안 함</td></tr>
-          <tr><td>Olympus / OM · Panasonic</td><td class="no">불가</td><td>EXIF에 없음 — 카메라의 숨겨진 서비스 메뉴에서만 확인 가능</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <section class="brand-summary">
+      <div class="section-head">
+        <h2>브랜드별 지원 현황</h2>
+        <div class="rule"></div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>브랜드</th><th>지원</th><th>비고</th></tr></thead>
+          <tbody>
+            <tr><td class="brand">Sony</td><td class="ok">지원</td><td>α 시리즈 (기계식 셔터 카운트). A9 III는 글로벌 셔터(기계식 셔터 없음)라 해당 없음</td></tr>
+            <tr><td class="brand">Nikon</td><td class="ok">지원</td><td>D40 이후 DSLR 전 기종 + Z 시리즈 전 기종 (JPG/NEF)</td></tr>
+            <tr><td class="brand">Pentax</td><td class="ok">지원</td><td>*istD 이후 대부분의 DSLR (JPG/PEF/DNG)</td></tr>
+            <tr><td class="brand">Fujifilm</td><td class="ok">지원</td><td>2017년 이후 X/GFX 기종 (ImageCount, 최대 32767에서 순환)</td></tr>
+            <tr><td class="brand">Canon</td><td class="part">일부 지원</td><td>R5 · R6 · R6 II · R8 · R50 · R5 II 등 일부 미러리스만. 대부분의 캐논은 EXIF에 기록 안 함</td></tr>
+            <tr><td class="brand">Olympus / OM · Panasonic</td><td class="no">불가</td><td>EXIF에 없음 — 카메라의 숨겨진 서비스 메뉴에서만 확인 가능</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </section>
 
   <!-- 지원 카메라 탭 -->
   <section id="tab-supported" class="tab">
-    <h2>지원 카메라 목록</h2>
-    <p>아래 목록에 없는 기종도 같은 세대/계열이면 인식될 수 있습니다. 목록은 EXIF 모델명 기준입니다.</p>
+    <h2 class="page-title">지원 카메라 목록</h2>
+    <p class="page-desc">아래 목록에 없는 기종도 같은 세대/계열이면 인식될 수 있습니다. 목록은 EXIF 모델명 기준입니다.</p>
     <div id="supportedList"></div>
   </section>
 
   <!-- FAQ 탭 -->
   <section id="tab-faq" class="tab">
-    <h2>자주 묻는 질문</h2>
-    <details open>
-      <summary>셔터 카운트가 왜 중요한가요?</summary>
-      <p>기계식 셔터는 소모품입니다. 제조사 내구 테스트 기준은 보급기 5~10만, 중급기 15~20만, 플래그십 30~50만 회 수준입니다.
-      중고 거래 시 자동차의 주행거리처럼 사용량을 가늠하는 지표가 됩니다.</p>
-    </details>
-    <details>
-      <summary>어떤 파일을 올려야 하나요?</summary>
-      <p><b>카메라에서 꺼낸 원본 파일</b>이어야 합니다. 라이트룸/포토샵 내보내기, 카톡·메신저 전송본, 리사이즈된 파일은
-      제조사 MakerNote가 제거되어 읽을 수 없는 경우가 많습니다.</p>
-    </details>
-    <details>
-      <summary>전자식 셔터로 찍은 사진도 카운트에 포함되나요?</summary>
-      <p>브랜드마다 다릅니다. Sony·Nikon의 최신 기종 카운터는 대체로 기계식 셔터 기준이고(니콘은 전자셔터 포함 기종도 있음),
-      Fujifilm의 ImageCount는 촬영 매수 기준입니다. 결과 카드에 각 값의 의미를 함께 표시합니다.</p>
-    </details>
-    <details>
-      <summary>결과가 안 나와요.</summary>
-      <p>① 원본 파일인지 확인 ② 지원 기종인지 확인 ③ 같은 카메라의 다른 사진(특히 기계식 셔터로 촬영한 것)으로 다시 시도해 보세요.
-      전자셔터/무음촬영으로 찍은 파일에는 카운트가 기록되지 않는 기종이 있습니다.</p>
-    </details>
-    <details>
-      <summary>캐논은 왜 안 되나요?</summary>
-      <p>캐논은 대부분의 기종에서 셔터 카운트를 EXIF에 기록하지 않습니다. R5/R6 세대 이후 일부 기종만 MakerNote에 기록하며
-      이 도구가 지원합니다. 그 외 기종은 USB 연결 유틸리티(EOS 계열: gphoto2 등)를 사용해야 합니다.</p>
-    </details>
-    <details>
-      <summary>올림푸스/파나소닉은요?</summary>
-      <p>이미지 파일에는 기록되지 않습니다. 카메라 본체의 숨겨진 서비스 메뉴(버튼 조합)로 확인해야 합니다.</p>
-    </details>
+    <h2 class="page-title">자주 묻는 질문</h2>
+    <div class="faq-list">
+      <details open>
+        <summary><span class="q">Q.</span><span class="q-text">셔터 카운트가 왜 중요한가요?</span></summary>
+        <div class="answer"><span class="a">A.</span><p>기계식 셔터는 소모품입니다. 제조사 내구 테스트 기준은 보급기 5~10만, 중급기 15~20만, 플래그십 30~50만 회 수준입니다. 중고 거래 시 자동차의 주행거리처럼 사용량을 가늠하는 지표가 됩니다.</p></div>
+      </details>
+      <details>
+        <summary><span class="q">Q.</span><span class="q-text">어떤 파일을 올려야 하나요?</span></summary>
+        <div class="answer"><span class="a">A.</span><p><b>카메라에서 꺼낸 원본 파일</b>이어야 합니다. 라이트룸/포토샵 내보내기, 카톡·메신저 전송본, 리사이즈된 파일은 제조사 MakerNote가 제거되어 읽을 수 없는 경우가 많습니다.</p></div>
+      </details>
+      <details>
+        <summary><span class="q">Q.</span><span class="q-text">전자식 셔터로 찍은 사진도 카운트에 포함되나요?</span></summary>
+        <div class="answer"><span class="a">A.</span><p>브랜드마다 다릅니다. Sony·Nikon의 최신 기종 카운터는 대체로 기계식 셔터 기준이고(니콘은 전자셔터 포함 기종도 있음), Fujifilm의 ImageCount는 촬영 매수 기준입니다. 결과 카드에 각 값의 의미를 함께 표시합니다.</p></div>
+      </details>
+      <details>
+        <summary><span class="q">Q.</span><span class="q-text">결과가 안 나와요.</span></summary>
+        <div class="answer"><span class="a">A.</span><p>① 원본 파일인지 확인 ② 지원 기종인지 확인 ③ 같은 카메라의 다른 사진(특히 기계식 셔터로 촬영한 것)으로 다시 시도해 보세요. 전자셔터/무음촬영으로 찍은 파일에는 카운트가 기록되지 않는 기종이 있습니다.</p></div>
+      </details>
+      <details>
+        <summary><span class="q">Q.</span><span class="q-text">캐논은 왜 안 되나요?</span></summary>
+        <div class="answer"><span class="a">A.</span><p>캐논은 대부분의 기종에서 셔터 카운트를 EXIF에 기록하지 않습니다. R5/R6 세대 이후 일부 기종만 MakerNote에 기록하며 이 도구가 지원합니다. 그 외 기종은 USB 연결 유틸리티(EOS 계열: gphoto2 등)를 사용해야 합니다.</p></div>
+      </details>
+      <details>
+        <summary><span class="q">Q.</span><span class="q-text">올림푸스/파나소닉은요?</span></summary>
+        <div class="answer"><span class="a">A.</span><p>이미지 파일에는 기록되지 않습니다. 카메라 본체의 숨겨진 서비스 메뉴(버튼 조합)로 확인해야 합니다.</p></div>
+      </details>
+    </div>
   </section>
 </main>
 
 <footer class="site-footer">
-  <div class="wrap">
-    파일은 업로드되지 않습니다 · 오픈소스 EXIF 지식 기반(ExifTool 문서 참고) · 결과는 참고용입니다
-  </div>
+  <div class="double-rule"></div>
+  <div class="foot-text">파일은 업로드되지 않습니다 · 오픈소스 EXIF 지식 기반(ExifTool 문서 참고) · 결과는 참고용입니다</div>
 </footer>
 
 <script src="assets/js/exif.js"></script>

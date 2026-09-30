@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="lib/exif.js"></script>
+<script src="lib/brands.js"></script>
+<style>body{margin:0;background:#f3efe6}*{box-sizing:border-box}a{color:#8a2b1f}a:hover{color:#5e1c14}summary{list-style:none}summary::-webkit-details-marker{display:none}</style>
+</helmet>
+<div style="min-height:100vh;background:#f3efe6;color:#1d1b17;font-family:'Noto Sans KR',sans-serif;line-height:1.65">
+  <input type="file" multiple="multiple" accept=".jpg,.jpeg,.arw,.nef,.nrw,.pef,.raf,.cr2,.cr3,.dng,.tif,.tiff" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none">
+  <header style="max-width:960px;margin:0 auto;padding:28px 24px 0">
+    <div style="border-top:3px solid #1d1b17;padding-top:8px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;color:#6b655a">
+      <span>BROWSER-ONLY · NO UPLOAD</span><span>SONY · NIKON · CANON · FUJIFILM · PENTAX</span>
+    </div>
+    <h1 style="margin:18px 0 6px;text-align:center;font-family:'Noto Serif KR',serif;font-weight:900;font-size:clamp(36px,6vw,60px);letter-spacing:-.02em;line-height:1.15">셔터 카운트 감정서</h1>
+    <div style="text-align:center;font-family:'Noto Serif KR',serif;font-size:15px;color:#6b655a">원본 사진 한 장으로 읽는 카메라의 사용 이력</div>
+    <div style="margin-top:22px;border-top:1px solid #1d1b17;border-bottom:1px solid #1d1b17;height:5px"></div>
+    <nav style="display:flex;justify-content:center;gap:28px;padding:12px 0;border-bottom:1px solid #cfc7b6">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.go }}" style="background:transparent;border:0;padding:4px 2px;cursor:pointer;font-family:'Noto Serif KR',serif;font-size:15px;font-weight:700;color:{{ t.color }};border-bottom:2px solid {{ t.line }}">{{ t.label }}</button>
+      </sc-for>
+    </nav>
+  </header>
+
+  <main style="max-width:960px;margin:0 auto;padding:40px 24px 80px">
+    <sc-if value="{{ isMain }}" hint-placeholder-val="{{ true }}">
+      <p style="margin:0 auto 28px;max-width:640px;text-align:center;font-family:'Noto Serif KR',serif;font-size:19px;line-height:1.75;text-wrap:pretty">카메라에서 나온 <b>원본 JPG 또는 RAW 파일</b>(ARW · NEF · PEF · RAF · CR2 · CR3 · DNG)을 올리면 촬영 시점의 셔터 작동 횟수를 보여줍니다.</p>
+
+      <div role="button" tabindex="0" onClick="{{ pick }}" onDragOver="{{ dragOn }}" onDragEnter="{{ dragOn }}" onDragLeave="{{ dragOff }}" onDrop="{{ drop }}" style="border:1px solid #1d1b17;padding:8px;background:{{ dzBg }};cursor:pointer;transition:background .15s" style-hover="background:#ece6d9">
+        <div style="border:1px dashed #8f8674;padding:52px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;color:#8a2b1f">{{ dzCode }}</div>
+          <div style="font-family:'Noto Serif KR',serif;font-size:clamp(22px,3.4vw,28px);font-weight:700">원본 파일을 이곳에 놓거나, 눌러서 선택하세요</div>
+          <div style="font-size:13px;color:#6b655a">여러 파일 동시 가능 · 편집/리사이즈된 파일은 정확하지 않을 수 있음</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;text-align:center;font-size:13px;color:#6b655a;text-wrap:pretty">※ 파일은 어디에도 업로드되지 않습니다. 모든 분석은 브라우저 안에서만 이루어지며, 파일 앞부분 몇 MB만 읽습니다.</div>
+
+      <sc-if value="{{ hasItems }}" hint-placeholder-val="{{ true }}">
+        <section style="margin-top:56px;display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:center;gap:16px"><h2 style="margin:0;font-family:'Noto Serif KR',serif;font-size:22px;font-weight:900">감정 결과</h2><div style="flex:1;height:1px;background:#1d1b17"></div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6b655a">{{ countText }}</span></div>
+          <sc-for list="{{ items }}" as="r" hint-placeholder-count="2">
+            <article style="position:relative;background:#fbf8f1;border:1px solid #cfc7b6;padding:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:28px 40px;overflow:hidden">
+              <div style="position:absolute;top:22px;right:22px;width:96px;height:96px;border-radius:50%;border:2px solid {{ r.tone }};display:flex;align-items:center;justify-content:center;transform:rotate(-10deg);opacity:.9">
+                <div style="width:84px;height:84px;border-radius:50%;border:1px solid {{ r.tone }};display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Noto Serif KR',serif;font-weight:900;font-size:14px;line-height:1.2;color:{{ r.tone }};padding:6px">{{ r.badge }}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;color:#8a2b1f">No. {{ r.no }}</div>
+                <div style="font-family:'Noto Serif KR',serif;font-size:26px;font-weight:900;line-height:1.3;padding-right:100px">{{ r.model }}</div>
+                <div style="display:flex;flex-direction:column">
+                  <div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px dotted #b8ae99;font-size:14px"><span style="color:#6b655a">파일</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;word-break:break-all;text-align:right">{{ r.file }}</span></div>
+                  <div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px dotted #b8ae99;font-size:14px"><span style="color:#6b655a">형식</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px">{{ r.containerStr }}</span></div>
+                  <div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px dotted #b8ae99;font-size:14px"><span style="color:#6b655a">촬영 일시</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px">{{ r.dateStr }}</span></div>
+                  <sc-for list="{{ r.extras }}" as="e" hint-placeholder-count="0">
+                    <div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px dotted #b8ae99;font-size:14px"><span style="color:#6b655a">{{ e.label }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px">{{ e.valueStr }}</span></div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;justify-content:flex-end;gap:14px">
+                <sc-if value="{{ r.hasCount }}" hint-placeholder-val="{{ true }}">
+                  <div style="font-size:13px;color:#6b655a">{{ r.countLabel }}</div>
+                  <div style="display:flex;align-items:baseline;gap:6px"><span style="font-family:'Noto Serif KR',serif;font-weight:900;font-size:clamp(48px,7vw,68px);line-height:1;letter-spacing:-.02em">{{ r.countStr }}</span><span style="font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700">회</span></div>
+                  <sc-if value="{{ showScale }}" hint-placeholder-val="{{ true }}">
+                    <div style="margin-top:6px">
+                      <div style="font-size:12px;color:#6b655a;margin-bottom:8px">제조사 내구 기준 대비 위치</div>
+                      <div style="position:relative;height:28px">
+                        <div style="position:absolute;left:0;right:0;top:13px;height:1px;background:#1d1b17"></div>
+                        <div style="position:absolute;left:10%;width:10%;top:8px;height:11px;background:#e4dccb"></div>
+                        <div style="position:absolute;left:30%;width:10%;top:8px;height:11px;background:#d6ccb6"></div>
+                        <div style="position:absolute;left:60%;width:40%;top:8px;height:11px;background:#c7bba0"></div>
+                        <div style="position:absolute;left:{{ r.markLeft }};top:0;width:2px;height:28px;background:#8a2b1f;transform:translateX(-1px)"></div>
+                      </div>
+                      <div style="position:relative;height:18px;font-size:11px;color:#6b655a">
+                        <span style="position:absolute;left:10%">보급기 5~10만</span>
+                        <span style="position:absolute;left:30%">중급기 15~20만</span>
+                        <span style="position:absolute;left:60%">플래그십 30~50만</span>
+                      </div>
+                    </div>
+                  </sc-if>
+                </sc-if>
+                <sc-for list="{{ r.notes }}" as="n" hint-placeholder-count="0">
+                  <div style="font-family:'Noto Serif KR',serif;font-size:14px;color:#4a453c;border-top:1px solid #cfc7b6;padding-top:12px;text-wrap:pretty">※ {{ n }}</div>
+                </sc-for>
+              </div>
+            </article>
+          </sc-for>
+        </section>
+      </sc-if>
+
+      <section style="margin-top:56px">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px"><h2 style="margin:0;font-family:'Noto Serif KR',serif;font-size:22px;font-weight:900">브랜드별 지원 현황</h2><div style="flex:1;height:1px;background:#1d1b17"></div></div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;border-top:2px solid #1d1b17;border-bottom:2px solid #1d1b17">
+          <thead><tr><th style="text-align:left;padding:10px 12px;font-family:'Noto Serif KR',serif;border-bottom:1px solid #1d1b17">브랜드</th><th style="text-align:left;padding:10px 12px;font-family:'Noto Serif KR',serif;border-bottom:1px solid #1d1b17;white-space:nowrap">지원</th><th style="text-align:left;padding:10px 12px;font-family:'Noto Serif KR',serif;border-bottom:1px solid #1d1b17">비고</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;font-weight:700">Sony</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#2f5d3a;font-weight:700;white-space:nowrap">지원</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#4a453c">α 시리즈 (기계식 셔터 카운트). A9 III는 글로벌 셔터(기계식 셔터 없음)라 해당 없음</td></tr>
+            <tr><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;font-weight:700">Nikon</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#2f5d3a;font-weight:700">지원</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#4a453c">D40 이후 DSLR 전 기종 + Z 시리즈 전 기종 (JPG/NEF)</td></tr>
+            <tr><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;font-weight:700">Pentax</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#2f5d3a;font-weight:700">지원</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#4a453c">*istD 이후 대부분의 DSLR (JPG/PEF/DNG)</td></tr>
+            <tr><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;font-weight:700">Fujifilm</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#2f5d3a;font-weight:700">지원</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#4a453c">2017년 이후 X/GFX 기종 (ImageCount, 최대 32767에서 순환)</td></tr>
+            <tr><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;font-weight:700">Canon</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#9a6a12;font-weight:700;white-space:nowrap">일부 지원</td><td style="padding:10px 12px;border-bottom:1px solid #cfc7b6;color:#4a453c">R5 · R6 · R6 II · R8 · R50 · R5 II 등 일부 미러리스만. 대부분의 캐논은 EXIF에 기록 안 함</td></tr>
+            <tr><td style="padding:10px 12px;font-weight:700">Olympus / OM · Panasonic</td><td style="padding:10px 12px;color:#8a2b1f;font-weight:700">불가</td><td style="padding:10px 12px;color:#4a453c">EXIF에 없음 — 카메라의 숨겨진 서비스 메뉴에서만 확인 가능</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isSupported }}" hint-placeholder-val="{{ false }}">
+      <h2 style="margin:0 0 8px;font-family:'Noto Serif KR',serif;font-size:32px;font-weight:900;text-align:center">지원 카메라 목록</h2>
+      <p style="margin:0 auto 36px;max-width:560px;text-align:center;color:#6b655a;text-wrap:pretty">아래 목록에 없는 기종도 같은 세대/계열이면 인식될 수 있습니다. 목록은 EXIF 모델명 기준입니다.</p>
+      <div style="column-width:260px;column-gap:40px;column-rule:1px solid #cfc7b6">
+        <sc-for list="{{ supported }}" as="c" hint-placeholder-count="6">
+          <div style="break-inside:avoid;margin-bottom:28px">
+            <div style="font-family:'Noto Serif KR',serif;font-size:18px;font-weight:900;border-bottom:1px solid #1d1b17;padding-bottom:4px">{{ c.cat }}</div>
+            <sc-for list="{{ c.subs }}" as="s" hint-placeholder-count="2">
+              <div style="font-size:12px;font-weight:700;color:#8a2b1f;margin-top:12px">{{ s.name }}</div>
+              <sc-for list="{{ s.models }}" as="m" hint-placeholder-count="2">
+                <div style="font-size:14px;color:#4a453c;padding:2px 0">{{ m }}</div>
+              </sc-for>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isFaq }}" hint-placeholder-val="{{ false }}">
+      <h2 style="margin:0 0 32px;font-family:'Noto Serif KR',serif;font-size:32px;font-weight:900;text-align:center">자주 묻는 질문</h2>
+      <div style="max-width:720px;margin:0 auto;border-top:2px solid #1d1b17">
+        <sc-for list="{{ faq }}" as="q" hint-placeholder-count="6">
+          <details open="{{ q.open }}" style="border-bottom:1px solid #cfc7b6">
+            <summary style="cursor:pointer;padding:18px 0;display:flex;gap:14px;align-items:baseline"><span style="font-family:'Noto Serif KR',serif;font-weight:900;color:#8a2b1f">Q.</span><span style="font-family:'Noto Serif KR',serif;font-weight:700;font-size:18px">{{ q.q }}</span></summary>
+            <div style="display:flex;gap:14px;padding:0 0 20px"><span style="font-family:'Noto Serif KR',serif;font-weight:900;color:#6b655a">A.</span><p style="margin:0;color:#4a453c;font-size:15px;text-wrap:pretty">{{ q.a }}</p></div>
+          </details>
+        </sc-for>
+      </div>
+    </sc-if>
+  </main>
+
+  <footer style="max-width:960px;margin:0 auto;padding:0 24px 40px">
+    <div style="border-top:1px solid #1d1b17;border-bottom:1px solid #1d1b17;height:5px"></div>
+    <div style="padding-top:14px;text-align:center;font-size:12px;color:#6b655a">파일은 업로드되지 않습니다 · 오픈소스 EXIF 지식 기반(ExifTool 문서 참고) · 결과는 참고용입니다</div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showDemo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;결과&quot;},&quot;showScale&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;결과&quot;}}">
+class Component extends DCLogic {
+  static DEMO = [
+    { id: 'd1', demo: true, file: 'DSC04821.ARW', container: 'ARW', model: 'SONY ILCE-7M4', status: 'ok', count: 23418, countLabel: '셔터 카운트', extras: [], dateTime: '2026:09:14 16:22:07', notes: [] },
+    { id: 'd2', demo: true, file: 'DSCF1203.RAF', container: 'RAF', model: 'FUJIFILM X-T5', status: 'ok', count: 8512, countLabel: 'ImageCount', extras: [], dateTime: '2026:08:30 11:05:42', notes: ['ImageCount는 촬영 매수 기준이며 32,767에서 순환합니다.'] },
+  ];
+  static FAQ = [
+    ['셔터 카운트가 왜 중요한가요?', '기계식 셔터는 소모품입니다. 제조사 내구 테스트 기준은 보급기 5~10만, 중급기 15~20만, 플래그십 30~50만 회 수준입니다. 중고 거래 시 자동차의 주행거리처럼 사용량을 가늠하는 지표가 됩니다.'],
+    ['어떤 파일을 올려야 하나요?', '카메라에서 꺼낸 원본 파일이어야 합니다. 라이트룸/포토샵 내보내기, 카톡·메신저 전송본, 리사이즈된 파일은 제조사 MakerNote가 제거되어 읽을 수 없는 경우가 많습니다.'],
+    ['전자식 셔터로 찍은 사진도 카운트에 포함되나요?', '브랜드마다 다릅니다. Sony·Nikon의 최신 기종 카운터는 대체로 기계식 셔터 기준이고(니콘은 전자셔터 포함 기종도 있음), Fujifilm의 ImageCount는 촬영 매수 기준입니다. 결과 카드에 각 값의 의미를 함께 표시합니다.'],
+    ['결과가 안 나와요.', '① 원본 파일인지 확인 ② 지원 기종인지 확인 ③ 같은 카메라의 다른 사진(특히 기계식 셔터로 촬영한 것)으로 다시 시도해 보세요. 전자셔터/무음촬영으로 찍은 파일에는 카운트가 기록되지 않는 기종이 있습니다.'],
+    ['캐논은 왜 안 되나요?', '캐논은 대부분의 기종에서 셔터 카운트를 EXIF에 기록하지 않습니다. R5/R6 세대 이후 일부 기종만 MakerNote에 기록하며 이 도구가 지원합니다. 그 외 기종은 USB 연결 유틸리티(EOS 계열: gphoto2 등)를 사용해야 합니다.'],
+    ['올림푸스/파나소닉은요?', '이미지 파일에는 기록되지 않습니다. 카메라 본체의 숨겨진 서비스 메뉴(버튼 조합)로 확인해야 합니다.'],
+  ];
+  state = { tab: 'main', drag: false, items: Component.DEMO };
+  fileRef = React.createRef();
+  componentDidMount() { this.t = setInterval(() => { if (window.supportedSummary) { clearInterval(this.t); this.forceUpdate(); } }, 200); }
+  componentWillUnmount() { clearInterval(this.t); }
+  async handle(files) {
+    for (const file of Array.from(files || [])) {
+      const id = 'f' + Math.random();
+      this.setState(s => ({ items: [{ id, file: file.name, loading: true, extras: [], notes: [] }, ...s.items] }));
+      let it;
+      try {
+        const p = await window.parseImageFile(file);
+        const r = window.extractShutterCount(p);
+        it = { id, file: file.name, container: p.container, model: [p.make, p.model].filter(Boolean).join(' ') || '기종 정보 없음', status: r.status, count: r.count, countLabel: r.countLabel, extras: r.extras || [], dateTime: p.dateTime, notes: r.notes || [] };
+      } catch (e) {
+        it = { id, file: file.name, model: '읽기 실패', status: 'error', extras: [], notes: [e.message || String(e)] };
+      }
+      this.setState(s => ({ items: s.items.map(x => x.id === id ? it : x) }));
+    }
+  }
+  renderVals() {
+    const showDemo = this.props.showDemo ?? true;
+    const tones = { ok: '#2f5d3a', warn: '#9a6a12', err: '#8a2b1f', wait: '#6b655a' };
+    const list = this.state.items.filter(x => showDemo || !x.demo);
+    const items = list.map((x, i) => {
+      const tk = x.loading ? 'wait' : x.status === 'ok' ? 'ok' : (x.status === 'warn' || x.status === 'unsupported') ? 'warn' : 'err';
+      const badge = x.loading ? '분석 중' : x.status === 'ok' ? '판독 성공' : x.status === 'warn' ? '실험적 지원' : x.status === 'unsupported' ? '미지원' : x.status === 'error' ? '오류' : '판독 실패';
+      const has = x.count != null;
+      return {
+        ...x, model: x.model || x.file, no: String(list.length - i).padStart(2, '0'), badge, tone: tones[tk], hasCount: has,
+        countStr: has ? x.count.toLocaleString('ko-KR') : '—', countLabel: x.countLabel || '셔터 카운트',
+        extras: (x.extras || []).map(e => ({ label: e.label, valueStr: Number(e.value).toLocaleString('ko-KR') })),
+        containerStr: x.container || '—', dateStr: x.dateTime || '—',
+        markLeft: (has ? Math.min(100, x.count / 500000 * 100) : 0) + '%',
+      };
+    });
+    const S = window.supportedSummary ? window.supportedSummary() : {};
+    const tab = this.state.tab;
+    const mk = (id, label) => ({ id, label, go: () => this.setState({ tab: id }), color: tab === id ? '#8a2b1f' : '#1d1b17', line: tab === id ? '#8a2b1f' : 'transparent' });
+    const stop = e => { e.preventDefault(); e.stopPropagation(); };
+    return {
+      tabs: [mk('main', '확인하기'), mk('supported', '지원 카메라'), mk('faq', 'FAQ')],
+      isMain: tab === 'main', isSupported: tab === 'supported', isFaq: tab === 'faq',
+      fileRef: this.fileRef, showScale: this.props.showScale ?? true,
+      pick: () => { const f = this.fileRef.current; if (f) { f.value = ''; f.click(); } },
+      onFile: e => this.handle(e.target.files),
+      dragOn: e => { stop(e); if (!this.state.drag) this.setState({ drag: true }); },
+      dragOff: e => { stop(e); this.setState({ drag: false }); },
+      drop: e => { stop(e); this.setState({ drag: false }); this.handle(e.dataTransfer && e.dataTransfer.files); },
+      dzBg: this.state.drag ? '#e6ddc9' : '#f7f3ea', dzCode: this.state.drag ? '놓으면 바로 감정합니다' : 'ORIGINAL FILES ONLY',
+      items, hasItems: items.length > 0, countText: '총 ' + items.length + '건',
+      supported: Object.keys(S).map(cat => ({ cat, subs: Object.keys(S[cat]).map(n => ({ name: n, models: S[cat][n] })) })),
+      faq: Component.FAQ.map((f, i) => ({ q: f[0], a: f[1], open: i === 0 })),
+    };
+  }
+}
+</script>
+</body>
+</html>

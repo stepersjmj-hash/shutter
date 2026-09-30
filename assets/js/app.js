@@ -1,4 +1,4 @@
-/* app.js — UI 로직 */
+/* app.js — UI 로직 (감정서 디자인) */
 "use strict";
 
 /* ---------- 탭 ---------- */
@@ -13,7 +13,13 @@ document.querySelectorAll(".navbtn").forEach(btn => {
 
 /* ---------- 드롭존 ---------- */
 const dz = document.getElementById("dropzone");
+const dzCode = document.getElementById("dzCode");
 const resultsEl = document.getElementById("results");
+const resultsSection = document.getElementById("resultsSection");
+const resultsCount = document.getElementById("resultsCount");
+
+const DZ_CODE_IDLE = "ORIGINAL FILES ONLY";
+const DZ_CODE_DRAG = "놓으면 바로 감정합니다";
 
 const fileInput = document.createElement("input");
 fileInput.type = "file";
@@ -27,72 +33,129 @@ dz.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { 
 fileInput.addEventListener("change", () => handleFiles(fileInput.files));
 
 ["dragover", "dragenter"].forEach(ev => dz.addEventListener(ev, e => {
-  e.preventDefault(); dz.classList.add("dragover");
+  e.preventDefault(); dz.classList.add("dragover"); dzCode.textContent = DZ_CODE_DRAG;
 }));
 ["dragleave", "dragend"].forEach(ev => dz.addEventListener(ev, e => {
-  e.preventDefault(); dz.classList.remove("dragover");
+  e.preventDefault(); dz.classList.remove("dragover"); dzCode.textContent = DZ_CODE_IDLE;
 }));
 dz.addEventListener("drop", e => {
-  e.preventDefault(); dz.classList.remove("dragover");
+  e.preventDefault(); dz.classList.remove("dragover"); dzCode.textContent = DZ_CODE_IDLE;
   if (e.dataTransfer && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
 });
 
+/* ---------- 결과 목록 ---------- */
+let resultSeq = 0; // 오래된 결과가 No. 01
+
+function updateResultsMeta() {
+  const n = resultsEl.children.length;
+  resultsSection.classList.toggle("has-items", n > 0);
+  resultsCount.textContent = "총 " + n + "건";
+}
+
 async function handleFiles(fileList) {
   for (const file of Array.from(fileList)) {
-    const card = document.createElement("div");
+    const no = String(++resultSeq).padStart(2, "0");
+    const card = document.createElement("article");
     card.className = "result-card";
-    card.innerHTML = `<div class="file">${escapeHtml(file.name)}</div><div class="meta">분석 중…</div>`;
+    card.innerHTML = cardHtml({
+      no, badgeClass: "", badge: "분석 중",
+      model: escapeHtml(file.name),
+      rows: [row("파일", file.name), row("형식", null), row("촬영 일시", null)],
+      right: "",
+    });
     resultsEl.prepend(card);
+    updateResultsMeta();
     try {
       const parsed = await parseImageFile(file);
       const r = extractShutterCount(parsed);
-      renderResult(card, file, parsed, r);
+      renderResult(card, no, file, parsed, r);
     } catch (err) {
-      renderError(card, file, err.message || String(err));
+      renderError(card, no, file, err.message || String(err));
     }
   }
 }
 
-function renderResult(card, file, parsed, r) {
-  const badge =
-    r.status === "ok" ? `<span class="badge ok">판독 성공</span>` :
-    r.status === "warn" ? `<span class="badge warn">실험적 지원</span>` :
-    r.status === "unsupported" ? `<span class="badge warn">미지원</span>` :
-    `<span class="badge err">판독 실패</span>`;
+/* 스탬프 상태 매핑 */
+function stampOf(status) {
+  if (status === "ok") return { cls: "ok", text: "판독 성공" };
+  if (status === "warn") return { cls: "warn", text: "실험적 지원" };
+  if (status === "unsupported") return { cls: "warn", text: "미지원" };
+  return { cls: "err", text: "판독 실패" };
+}
 
-  const modelName = [parsed.make, parsed.model].filter(Boolean).join(" ") || "기종 정보 없음";
-  let html = `
-    <div class="file">${escapeHtml(file.name)} · ${escapeHtml(parsed.container)}</div>
-    <div class="model-line">
-      <span class="model">${escapeHtml(modelName)}</span>
-      ${badge}
+function row(k, v, mono = true) {
+  const val = v == null || v === "" ? "—" : v;
+  return `<div class="info-row"><span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(val)}</span></div>`;
+}
+
+function scaleHtml(count) {
+  const left = Math.min(100, count / 500000 * 100);
+  return `
+    <div class="scale">
+      <div class="scale-caption">제조사 내구 기준 대비 위치</div>
+      <div class="scale-track">
+        <div class="scale-base"></div>
+        <div class="scale-band b1"></div>
+        <div class="scale-band b2"></div>
+        <div class="scale-band b3"></div>
+        <div class="scale-mark" style="left:${left}%"></div>
+      </div>
+      <div class="scale-labels">
+        <span class="l1">보급기 5~10만</span>
+        <span class="l2">중급기 15~20만</span>
+        <span class="l3">플래그십 30~50만</span>
+      </div>
     </div>`;
+}
 
-  if (r.count != null) {
-    html += `
-      <div class="count-line">
-        <span class="count-num">${r.count.toLocaleString("ko-KR")}</span>
-        <span class="count-label">${escapeHtml(r.countLabel || "셔터 카운트")}</span>
-      </div>`;
-    if (r.extras) {
-      html += r.extras.map(x =>
-        `<div class="sub-counts">${escapeHtml(x.label)}: <b>${x.value.toLocaleString("ko-KR")}</b></div>`).join("");
-    }
+function cardHtml({ no, badgeClass, badge, model, rows, right }) {
+  return `
+    <div class="stamp ${badgeClass}"><div class="stamp-inner">${escapeHtml(badge)}</div></div>
+    <div class="card-left">
+      <div class="card-no">No. ${no}</div>
+      <div class="card-model">${model}</div>
+      <div class="info-table">${rows.join("")}</div>
+    </div>
+    <div class="card-right">${right}</div>`;
+}
+
+function renderResult(card, no, file, parsed, r) {
+  const stamp = stampOf(r.status);
+  const modelName = [parsed.make, parsed.model].filter(Boolean).join(" ") || "기종 정보 없음";
+
+  const rows = [
+    row("파일", file.name),
+    row("형식", parsed.container),
+    row("촬영 일시", parsed.dateTime),
+  ];
+  if (r.extras) {
+    for (const x of r.extras) rows.push(row(x.label, Number(x.value).toLocaleString("ko-KR")));
   }
-  if (parsed.dateTime) {
-    html += `<div class="meta">촬영 일시: ${escapeHtml(parsed.dateTime)}</div>`;
+
+  let right = "";
+  if (r.count != null) {
+    right += `
+      <div class="count-label">${escapeHtml(r.countLabel || "셔터 카운트")}</div>
+      <div class="count-line"><span class="count-num">${r.count.toLocaleString("ko-KR")}</span><span class="count-unit">회</span></div>
+      ${scaleHtml(r.count)}`;
   }
   if (r.notes && r.notes.length) {
-    html += `<div class="result-note">${r.notes.map(escapeHtml).join("<br>")}</div>`;
+    right += r.notes.map(n => `<div class="result-note">※ ${escapeHtml(n)}</div>`).join("");
   }
-  card.innerHTML = html;
+
+  card.innerHTML = cardHtml({
+    no, badgeClass: stamp.cls, badge: stamp.text,
+    model: escapeHtml(modelName), rows, right,
+  });
 }
 
-function renderError(card, file, message) {
-  card.innerHTML = `
-    <div class="file">${escapeHtml(file.name)}</div>
-    <div class="model-line"><span class="model">읽기 실패</span><span class="badge err">오류</span></div>
-    <div class="result-note">${escapeHtml(message)}</div>`;
+function renderError(card, no, file, message) {
+  card.innerHTML = cardHtml({
+    no, badgeClass: "err", badge: "오류",
+    model: "읽기 실패",
+    rows: [row("파일", file.name), row("형식", null), row("촬영 일시", null)],
+    right: `<div class="result-note">※ ${escapeHtml(message)}</div>`,
+  });
 }
 
 function escapeHtml(s) {
@@ -108,10 +171,10 @@ function escapeHtml(s) {
   for (const cat in data) {
     const div = document.createElement("div");
     div.className = "cat";
-    let html = `<h3>${escapeHtml(cat)}</h3>`;
+    let html = `<div class="cat-name">${escapeHtml(cat)}</div>`;
     for (const sub in data[cat]) {
-      html += `<h4>${escapeHtml(sub)}</h4><ul>` +
-        data[cat][sub].map(m => `<li>${escapeHtml(m)}</li>`).join("") + `</ul>`;
+      html += `<div class="sub-name">${escapeHtml(sub)}</div>` +
+        data[cat][sub].map(m => `<div class="model">${escapeHtml(m)}</div>`).join("");
     }
     div.innerHTML = html;
     root.appendChild(div);
