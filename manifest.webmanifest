@@ -1,0 +1,14 @@
+{
+  "name": "셔터 카운트 감정서",
+  "short_name": "셔터 감정서",
+  "description": "원본 사진 한 장으로 읽는 카메라의 사용 이력 — 파일 업로드 없는 셔터 카운트 확인 도구",
+  "start_url": "/shutter/",
+  "scope": "/shutter/",
+  "display": "standalone",
+  "background_color": "#f3efe6",
+  "theme_color": "#f3efe6",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

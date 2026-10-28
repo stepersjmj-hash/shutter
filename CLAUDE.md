@@ -19,6 +19,10 @@ Sony · Nikon · Pentax · Fujifilm · Canon(일부) 지원. 파일은 서버로
 - `design_handoff_certificate/` — 디자인 핸드오프 문서·레퍼런스·파비콘 원본 (배포와 무관한 소스 자료)
 - `favicon.svg` / `favicon-32.png` / `apple-touch-icon.png` — 루트 파비콘
   (원본은 design_handoff_certificate/assets/)
+- `icons/icon-192.png` / `icons/icon-512.png` + `manifest.webmanifest` — 앱 바로가기용 아이콘 세트.
+  네이버 앱 바로가기·아이폰 홈 화면은 apple-touch-icon/매니페스트의 큰 정사각 아이콘을 찾으므로
+  불투명(종이색 #f3efe6 flatten) PNG로 유지한다. favicon.svg에서 sharp로 생성
+  (viewBox 64 기준 density = 72×크기/64). head에는 theme-color·og:image도 선언돼 있음
 
 ## 반복 작업 절차
 
